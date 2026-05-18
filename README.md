@@ -1,212 +1,232 @@
-Welcome to your new TanStack Start app! 
+# ClassAI
 
-# Getting Started
+AI-powered ESL/EFL lesson plan generator. Create complete, structured lesson plans in minutes using AI, with Clerk authentication, Supabase PostgreSQL, and a modern TanStack Start frontend.
 
-To run this application:
+## Tech Stack
+
+- **Framework**: [TanStack Start](https://tanstack.com/start) (React + SSR + Server Functions)
+- **Routing**: [TanStack Router](https://tanstack.com/router) (file-based)
+- **Auth**: [Clerk](https://clerk.com) (`@clerk/tanstack-react-start`)
+- **Database**: [Supabase PostgreSQL](https://supabase.com) via [Prisma ORM](https://prisma.io)
+- **AI**: [OpenRouter](https://openrouter.ai) (`@openrouter/sdk`)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
+- **Export**: [docx](https://github.com/dolanmiu/docx) for DOCX generation
+- **Package Manager**: pnpm
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js 20+
+- pnpm (`corepack enable && corepack prepare pnpm@latest --activate`)
+- Supabase project (free tier works)
+- Clerk account (free tier works)
+- OpenRouter API key (free models available)
+
+### 1. Install dependencies
 
 ```bash
 pnpm install
+```
+
+### 2. Set up environment variables
+
+Copy `.env.example` to `.env.local` and fill in your keys:
+
+```bash
+cp .env.example .env.local
+```
+
+| Variable | Description | Where to get it |
+|---|---|---|
+| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk publishable key | Clerk Dashboard → API Keys |
+| `CLERK_SECRET_KEY` | Clerk secret key | Clerk Dashboard → API Keys |
+| `OPENROUTER_API_KEY` | OpenRouter API key | OpenRouter Dashboard → Keys |
+| `DATABASE_URL` | Supabase pooler URL (port 6543) | Supabase → Settings → Database → Connection string (pooler) |
+| `DATABASE_URL_UNPOOLED` | Supabase direct URL (port 5432) | Supabase → Settings → Database → Connection string (direct) |
+
+### 3. Set up the database
+
+Run this SQL in your Supabase SQL Editor:
+
+```sql
+CREATE TYPE "PlanStatus" AS ENUM ('draft', 'completed', 'archived');
+CREATE TYPE "ClassType" AS ENUM ('listening', 'reading', 'writing', 'speaking', 'integrated');
+
+CREATE TABLE "lesson_plans" (
+    "id" TEXT NOT NULL,
+    "clerkUserId" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "level" TEXT NOT NULL,
+    "classType" "ClassType" NOT NULL,
+    "duration" TEXT NOT NULL,
+    "studentCount" TEXT NOT NULL,
+    "topic" TEXT NOT NULL,
+    "objectives" TEXT,
+    "notes" TEXT,
+    "content" TEXT NOT NULL,
+    "status" "PlanStatus" NOT NULL DEFAULT 'completed',
+    "promptTokens" INTEGER NOT NULL DEFAULT 0,
+    "completionTokens" INTEGER NOT NULL DEFAULT 0,
+    "totalTokens" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "lesson_plans_pkey" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "drafts" (
+    "id" TEXT NOT NULL,
+    "clerkUserId" TEXT NOT NULL,
+    "title" TEXT,
+    "level" TEXT,
+    "classType" TEXT,
+    "duration" TEXT,
+    "studentCount" TEXT,
+    "topic" TEXT,
+    "objectives" TEXT,
+    "notes" TEXT,
+    "content" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "drafts_pkey" PRIMARY KEY ("id")
+);
+
+CREATE INDEX "lesson_plans_clerkUserId_idx" ON "lesson_plans"("clerkUserId");
+CREATE INDEX "lesson_plans_clerkUserId_createdAt_idx" ON "lesson_plans"("clerkUserId", "createdAt" DESC);
+CREATE INDEX "lesson_plans_clerkUserId_status_idx" ON "lesson_plans"("clerkUserId", "status");
+CREATE INDEX "lesson_plans_createdAt_idx" ON "lesson_plans"("createdAt" DESC);
+CREATE UNIQUE INDEX "drafts_clerkUserId_key" ON "drafts"("clerkUserId");
+CREATE INDEX "drafts_clerkUserId_idx" ON "drafts"("clerkUserId");
+```
+
+### 4. Generate Prisma client
+
+```bash
+pnpm db:generate
+```
+
+### 5. Start the dev server
+
+```bash
 pnpm dev
 ```
 
-# Building For Production
+Open [http://localhost:3000](http://localhost:3000)
 
-To build this application for production:
+## Available Scripts
+
+| Command | Description |
+|---|---|
+| `pnpm dev` | Start dev server on port 3000 |
+| `pnpm build` | Build for production |
+| `pnpm preview` | Preview production build |
+| `pnpm test` | Run Vitest tests |
+| `pnpm lint` | Run ESLint |
+| `pnpm format` | Format with Prettier + ESLint fix |
+| `pnpm check` | Check formatting with Prettier |
+| `pnpm db:generate` | Generate Prisma client |
+| `pnpm db:push` | Push schema changes to DB |
+| `pnpm db:migrate` | Run Prisma migrations |
+| `pnpm db:studio` | Open Prisma Studio |
+
+## Project Structure
+
+```
+├── prisma/
+│   └── schema.prisma          # Database schema (LessonPlan, Draft)
+├── src/
+│   ├── components/
+│   │   ├── DashboardShell.tsx  # Dashboard layout with sidebar
+│   │   ├── Header.tsx          # Public header with auth buttons
+│   │   └── ui/                 # shadcn/ui components
+│   ├── lib/
+│   │   ├── env.ts              # Environment variable validation
+│   │   ├── openrouter.ts       # OpenRouter AI service layer
+│   │   ├── prisma.ts           # PrismaClient singleton
+│   │   └── utils.ts            # cn() utility
+│   ├── routes/
+│   │   ├── __root.tsx          # Root route (ClerkProvider, Header)
+│   │   ├── index.tsx           # Landing page
+│   │   ├── overview.tsx        # Feature overview
+│   │   ├── pricing.tsx         # Pricing page + FAQ
+│   │   ├── help.tsx            # Help center
+│   │   ├── dashboard.tsx       # Dashboard layout (protected)
+│   │   └── dashboard/
+│   │       ├── index.tsx       # Dashboard overview with stats
+│   │       ├── billing.tsx     # Billing & subscription (Clerk PricingTable)
+│   │       ├── settings.tsx    # User settings
+│   │       └── plans/
+│   │           ├── index.tsx   # Plans list with search/filter/pagination
+│   │           ├── new.tsx     # Create plan with autosave drafts
+│   │           └── $planId.tsx # Plan detail view/edit/export
+│   ├── server/
+│   │   ├── ai.ts               # All server functions (CRUD, AI, drafts, export)
+│   │   └── docx.ts             # DOCX generation from markdown
+│   └── styles.css              # Tailwind v4 + custom theme
+├── .env.example                # Environment variable template
+├── .env.local                  # Your secrets (gitignored)
+└── vite.config.ts              # Vite + TanStack Start config
+```
+
+## Architecture
+
+### Server Functions (`src/server/ai.ts`)
+
+All database and AI operations run server-side via TanStack Start's `createServerFn`. Every function:
+
+1. Calls `await auth()` from Clerk to get the user's `clerkUserId`
+2. Filters all Prisma queries by `clerkUserId` (row-level security)
+3. Returns typed results to the client
+
+| Function | Method | Description |
+|---|---|---|
+| `generateLessonPlan` | POST | Generate plan via OpenRouter, save to DB, delete draft |
+| `getPlansByUserId` | GET | Paginated list with search + filter |
+| `getPlanById` | GET | Single plan by ID (owner-only) |
+| `deletePlanFn` | POST | Delete plan (owner-only) |
+| `updatePlanFn` | POST | Update plan content/title (owner-only) |
+| `saveDraftFn` | POST | Upsert autosave draft (one per user) |
+| `getDraftFn` | GET | Retrieve current user's draft |
+| `exportDocxFn` | POST | Generate DOCX buffer, return base64 |
+| `getDashboardStats` | GET | Stats: total plans, monthly usage, recent plans |
+
+### AI Generation (`src/lib/openrouter.ts`)
+
+- Uses `@openrouter/sdk` with model `openrouter/free` (configurable)
+- System prompt enforces structured lesson plan format
+- Returns content + token usage for billing/tracking
+- Token tracking stored per plan in the database
+
+### Autosave Drafts (`src/routes/dashboard/plans/new.tsx`)
+
+- 3-second debounce on form changes
+- Upserts to `Drafts` table (one draft per user)
+- Draft restored on page reload via loader
+- Shows "Draft saved HH:MM:SS" indicator
+
+### DOCX Export (`src/server/docx.ts`)
+
+- Parses markdown to structured sections (headings, paragraphs, lists)
+- Generates formatted Word document with branded styling
+- Returns base64 buffer for client-side download
+
+## Security
+
+- **No secrets in source code**: All keys in `.env.local` (gitignored)
+- **Row-level security**: Every DB query filters by `clerkUserId` from Clerk auth
+- **Server-only operations**: AI calls, DB queries, and DOCX generation run server-side
+- **Environment validation**: `src/lib/env.ts` throws on missing required vars
+
+## Deployment
+
+Build the app and deploy the `dist/` output to any Node.js host:
 
 ```bash
 pnpm build
 ```
 
-## Testing
+Make sure production environment variables are set on your hosting platform.
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+## License
 
-```bash
-pnpm test
-```
-
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Replace the Tailwind import in `src/styles.css` with your own styles
-2. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-3. Uninstall the packages: `pnpm remove @tailwindcss/vite tailwindcss`
-
-## Linting & Formatting
-
-
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
-
-```bash
-pnpm lint
-pnpm format
-pnpm check
-```
-
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
-
-```bash
-pnpm dlx shadcn@latest add button
-```
-
-
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+Private - All rights reserved
