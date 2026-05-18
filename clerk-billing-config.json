@@ -1,0 +1,50 @@
+{
+  "billing": {
+    "enabled": true,
+    "plans": [
+      {
+        "slug": "pro",
+        "name": "Pro",
+        "amount": 1200,
+        "currency": "usd",
+        "is_recurring": true,
+        "interval": "month",
+        "features": [
+          "unlimited_plans",
+          "share_plans",
+          "export_pdf",
+          "analytics",
+          "priority_support"
+        ]
+      },
+      {
+        "slug": "school",
+        "name": "School",
+        "amount": 4900,
+        "currency": "usd",
+        "is_recurring": true,
+        "interval": "month",
+        "features": [
+          "unlimited_plans",
+          "share_plans",
+          "export_pdf",
+          "analytics",
+          "priority_support",
+          "admin_dashboard",
+          "api_access",
+          "custom_branding"
+        ]
+      }
+    ],
+    "features": [
+      { "slug": "unlimited_plans", "name": "Unlimited lesson plans" },
+      { "slug": "share_plans", "name": "Share plans with teachers" },
+      { "slug": "export_pdf", "name": "Export to PDF & Google Docs" },
+      { "slug": "analytics", "name": "Class analytics" },
+      { "slug": "priority_support", "name": "Priority support" },
+      { "slug": "admin_dashboard", "name": "Admin dashboard" },
+      { "slug": "api_access", "name": "API access" },
+      { "slug": "custom_branding", "name": "Custom branding" }
+    ]
+  }
+}

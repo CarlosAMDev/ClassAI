@@ -21,7 +21,7 @@ import {
   CardTitle,
 } from '#/components/ui/card'
 
-export const Route = createFileRoute('/dashboard/settings')({
+export const Route = createFileRoute('/_authenticated/dashboard/settings')({
   component: Settings,
 })
 

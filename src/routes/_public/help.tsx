@@ -1,4 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { auth } from '@clerk/tanstack-react-start/server'
 import {
   BookOpen,
   FileText,
@@ -19,8 +21,17 @@ import {
   CardTitle,
 } from '#/components/ui/card'
 
-export const Route = createFileRoute('/help')({
+const checkSignedIn = createServerFn().handler(async () => {
+  const { isAuthenticated } = await auth()
+  if (isAuthenticated) {
+    throw redirect({ to: '/dashboard' })
+  }
+  return { isPublic: true }
+})
+
+export const Route = createFileRoute('/_public/help')({
   component: Help,
+  beforeLoad: async () => await checkSignedIn(),
 })
 
 const categories = [

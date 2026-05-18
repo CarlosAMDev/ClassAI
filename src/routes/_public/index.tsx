@@ -1,5 +1,7 @@
-import { useClerk, useAuth } from '@clerk/tanstack-react-start'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { useClerk } from '@clerk/tanstack-react-start'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { auth } from '@clerk/tanstack-react-start/server'
 import {
   ArrowRight,
   Brain,
@@ -11,12 +13,20 @@ import {
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 
-export const Route = createFileRoute('/')({
+const checkSignedIn = createServerFn().handler(async () => {
+  const { isAuthenticated } = await auth()
+  if (isAuthenticated) {
+    throw redirect({ to: '/dashboard' })
+  }
+  return { isPublic: true }
+})
+
+export const Route = createFileRoute('/_public/')({
   component: Home,
+  beforeLoad: async () => await checkSignedIn(),
 })
 
 function Home() {
-  const { isSignedIn } = useAuth()
   const clerk = useClerk()
 
   return (
@@ -39,22 +49,14 @@ function Home() {
             planning.
           </p>
           <div className="mt-10 flex justify-center gap-4">
-            {isSignedIn ? (
-              <Button size="lg" asChild className="bg-lagoon-deep text-white shadow-md shadow-lagoon-deep/20 hover:bg-lagoon-deep/90">
-                <Link to="/dashboard">
-                  Go to Dashboard
-                </Link>
-              </Button>
-            ) : (
-              <button
-                type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-md bg-lagoon-deep px-6 text-sm font-medium text-white shadow-md shadow-lagoon-deep/20 transition-all hover:bg-lagoon-deep/90"
-                onClick={() => clerk.openSignIn()}
-              >
-                Get Started Free
-                <Sparkles className="size-4" />
-              </button>
-            )}
+            <button
+              type="button"
+              className="inline-flex h-10 items-center gap-2 rounded-md bg-lagoon-deep px-6 text-sm font-medium text-white shadow-md shadow-lagoon-deep/20 transition-all hover:bg-lagoon-deep/90"
+              onClick={() => clerk.openSignIn()}
+            >
+              Get Started Free
+              <Sparkles className="size-4" />
+            </button>
             <Button size="lg" variant="outline" asChild>
               <Link to="/overview">
                 See How It Works
@@ -112,22 +114,14 @@ function Home() {
               better lessons with AI.
             </p>
             <div className="mt-8">
-              {!isSignedIn ? (
-                <button
-                  type="button"
-                  className="inline-flex h-10 items-center gap-2 rounded-md bg-lagoon-deep px-6 text-sm font-medium text-white shadow-md shadow-lagoon-deep/20 transition-all hover:bg-lagoon-deep/90"
-                  onClick={() => clerk.openSignIn()}
-                >
-                  Start Planning for Free
-                  <Sparkles className="size-4" />
-                </button>
-              ) : (
-                <Button size="lg" asChild className="bg-lagoon-deep text-white shadow-md shadow-lagoon-deep/20 hover:bg-lagoon-deep/90">
-                  <Link to="/dashboard">
-                    Go to Dashboard
-                  </Link>
-                </Button>
-              )}
+              <button
+                type="button"
+                className="inline-flex h-10 items-center gap-2 rounded-md bg-lagoon-deep px-6 text-sm font-medium text-white shadow-md shadow-lagoon-deep/20 transition-all hover:bg-lagoon-deep/90"
+                onClick={() => clerk.openSignIn()}
+              >
+                Start Planning for Free
+                <Sparkles className="size-4" />
+              </button>
             </div>
           </div>
         </div>

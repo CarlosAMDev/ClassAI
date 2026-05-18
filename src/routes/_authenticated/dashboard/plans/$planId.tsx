@@ -44,7 +44,7 @@ import {
   revokeShareFn,
 } from '#/server/ai'
 
-export const Route = createFileRoute('/dashboard/plans/$planId')({
+export const Route = createFileRoute('/_authenticated/dashboard/plans/$planId')({
   component: PlanDetail,
   loader: async ({ params }) => {
     const result = await (getPlanById as unknown as (opts: { data: { planId: string } }) => Promise<{ success: boolean; plan?: any; error?: string }>)(

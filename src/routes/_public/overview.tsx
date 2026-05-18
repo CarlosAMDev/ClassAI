@@ -1,5 +1,7 @@
-import { SignInButton, useAuth } from '@clerk/tanstack-react-start'
-import { createFileRoute } from '@tanstack/react-router'
+import { SignInButton } from '@clerk/tanstack-react-start'
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { auth } from '@clerk/tanstack-react-start/server'
 import {
   BookOpen,
   Brain,
@@ -20,8 +22,17 @@ import {
   CardTitle,
 } from '#/components/ui/card'
 
-export const Route = createFileRoute('/overview')({
+const checkSignedIn = createServerFn().handler(async () => {
+  const { isAuthenticated } = await auth()
+  if (isAuthenticated) {
+    throw redirect({ to: '/dashboard' })
+  }
+  return { isPublic: true }
+})
+
+export const Route = createFileRoute('/_public/overview')({
   component: Overview,
+  beforeLoad: async () => await checkSignedIn(),
 })
 
 const features = [
@@ -76,8 +87,6 @@ const features = [
 ]
 
 function Overview() {
-  const { isSignedIn } = useAuth()
-
   return (
     <div className="min-h-screen px-6 py-16">
       <div className="mx-auto max-w-5xl">
@@ -161,21 +170,12 @@ function Overview() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {!isSignedIn ? (
-              <SignInButton mode="modal">
-                <span className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md bg-lagoon-deep px-6 text-sm font-medium !text-white shadow-md shadow-lagoon-deep/20 transition-all hover:bg-lagoon-deep/90 hover:shadow-lagoon-deep/30">
-                  Start Free Trial
-                  <Sparkles className="size-4" />
-                </span>
-              </SignInButton>
-            ) : (
-              <a
-                href="/dashboard"
-                className="inline-flex h-10 items-center gap-2 rounded-md bg-lagoon-deep px-6 text-sm font-medium text-white shadow-md shadow-lagoon-deep/20 transition-all hover:bg-lagoon-deep/90"
-              >
-                Go to Dashboard
-              </a>
-            )}
+            <SignInButton mode="modal">
+              <span className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md bg-lagoon-deep px-6 text-sm font-medium !text-white shadow-md shadow-lagoon-deep/20 transition-all hover:bg-lagoon-deep/90 hover:shadow-lagoon-deep/30">
+                Start Free Trial
+                <Sparkles className="size-4" />
+              </span>
+            </SignInButton>
           </CardContent>
         </Card>
       </div>

@@ -20,7 +20,7 @@ import {
 } from '#/components/ui/card'
 import { getDashboardStats } from '#/server/ai'
 
-export const Route = createFileRoute('/dashboard/')({
+export const Route = createFileRoute('/_authenticated/dashboard/')({
   component: DashboardOverview,
   loader: async () => {
     const stats = await getDashboardStats()

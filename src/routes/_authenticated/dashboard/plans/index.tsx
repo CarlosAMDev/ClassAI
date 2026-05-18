@@ -6,7 +6,7 @@ import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { getPlansByUserId, deletePlanFn, getSharedPlansFn } from '#/server/ai'
 
-export const Route = createFileRoute('/dashboard/plans/')({
+export const Route = createFileRoute('/_authenticated/dashboard/plans/')({
   component: PlansList,
   loader: async ({ search }) => {
     const page = Number((search as any)?.page) || 1

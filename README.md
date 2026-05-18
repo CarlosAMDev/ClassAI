@@ -99,13 +99,27 @@ CREATE UNIQUE INDEX "drafts_clerkUserId_key" ON "drafts"("clerkUserId");
 CREATE INDEX "drafts_clerkUserId_idx" ON "drafts"("clerkUserId");
 ```
 
-### 4. Generate Prisma client
+### 4. Set up Clerk Billing
+
+1. **Enable Billing**: Go to [Clerk Dashboard → Billing → Settings](https://dashboard.clerk.com/last-active?path=billing/settings) and enable billing
+2. **Create Plans**: Go to [Clerk Dashboard → Billing → Plans](https://dashboard.clerk.com/last-active?path=billing/plans) and create:
+
+| Plan | Slug | Price | Features |
+|------|------|-------|----------|
+| Pro | `pro` | $12/month | `unlimited_plans`, `share_plans`, `export_pdf`, `analytics`, `priority_support` |
+| School | `school` | $49/month | All Pro features + `admin_dashboard`, `api_access`, `custom_branding` |
+
+3. **Free tier**: No plan needed - users without a subscription are on the free tier (5 plans/month)
+
+> **Note**: The file `clerk-billing-config.json` contains the full billing configuration for reference or programmatic setup via `clerk config patch`.
+
+### 5. Generate Prisma client
 
 ```bash
 pnpm db:generate
 ```
 
-### 5. Start the dev server
+### 6. Start the dev server
 
 ```bash
 pnpm dev

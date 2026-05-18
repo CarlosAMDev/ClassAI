@@ -28,7 +28,7 @@ import {
 } from '#/components/ui/card'
 import { generateLessonPlan, updatePlanFn, exportDocxFn, saveDraftFn, getDraftFn } from '#/server/ai'
 
-export const Route = createFileRoute('/dashboard/plans/new')({
+export const Route = createFileRoute('/_authenticated/dashboard/plans/new')({
   component: CreatePlan,
   loader: async () => {
     const draft = await getDraftFn()

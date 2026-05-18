@@ -1,5 +1,7 @@
-import { SignInButton, useAuth } from '@clerk/tanstack-react-start'
-import { createFileRoute } from '@tanstack/react-router'
+import { SignInButton } from '@clerk/tanstack-react-start'
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { auth } from '@clerk/tanstack-react-start/server'
 import { Check } from 'lucide-react'
 
 import { Badge } from '#/components/ui/badge'
@@ -11,12 +13,22 @@ import {
   CardTitle,
 } from '#/components/ui/card'
 
-export const Route = createFileRoute('/pricing')({
+const checkSignedIn = createServerFn().handler(async () => {
+  const { isAuthenticated } = await auth()
+  if (isAuthenticated) {
+    throw redirect({ to: '/dashboard/billing' })
+  }
+  return { isPublic: true }
+})
+
+export const Route = createFileRoute('/_public/pricing')({
   component: Pricing,
+  beforeLoad: async () => await checkSignedIn(),
 })
 
 const plans = [
   {
+    slug: 'free',
     name: 'Free',
     price: '$0',
     period: '/month',
@@ -25,13 +37,13 @@ const plans = [
       '5 lesson plans per month',
       'Basic AI generation',
       'CEFR levels A1-B2',
-      'Printable worksheets',
+      'Export to DOCX',
       'Email support',
     ],
-    cta: 'Get Started',
     popular: false,
   },
   {
+    slug: 'pro',
     name: 'Pro',
     price: '$12',
     period: '/month',
@@ -40,15 +52,15 @@ const plans = [
       'Unlimited lesson plans',
       'Advanced AI with adaptive learning',
       'All CEFR levels (A1-C2)',
-      'Custom templates & curriculum builder',
+      'Share plans with other teachers',
       'Priority support',
       'Export to PDF & Google Docs',
       'Class analytics & progress tracking',
     ],
-    cta: 'Start Pro Trial',
     popular: true,
   },
   {
+    slug: 'school',
     name: 'School',
     price: '$49',
     period: '/month',
@@ -63,14 +75,11 @@ const plans = [
       'API access',
       'Training & onboarding sessions',
     ],
-    cta: 'Contact Sales',
     popular: false,
   },
 ]
 
 function Pricing() {
-  const { isSignedIn } = useAuth()
-
   return (
     <div className="min-h-screen px-6 py-16">
       <div className="mx-auto max-w-6xl">
@@ -92,7 +101,7 @@ function Pricing() {
         <div className="grid gap-6 md:grid-cols-3">
           {plans.map((plan) => (
             <Card
-              key={plan.name}
+              key={plan.slug}
               className={`flex flex-col feature-card ${plan.popular ? 'border-lagoon-deep ring-2 ring-lagoon-deep/20' : ''}`}
             >
               <CardHeader>
@@ -113,34 +122,17 @@ function Pricing() {
                   ))}
                 </ul>
                 <div className="mt-8">
-                  {isSignedIn ? (
-                    <a
-                      href="/dashboard/billing"
-                      className={`flex h-10 w-full items-center justify-center gap-2 rounded-md px-6 text-sm font-medium transition-all ${
+                  <SignInButton mode="modal">
+                    <span
+                      className={`flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md px-6 text-sm font-medium transition-all ${
                         plan.popular
                           ? 'bg-lagoon-deep text-white shadow-md shadow-lagoon-deep/20 hover:bg-lagoon-deep/90'
-                          : plan.name === 'School'
-                            ? 'border border-lagoon-deep/30 text-lagoon-deep hover:bg-lagoon/10'
-                            : 'border border-lagoon-deep/30 text-lagoon-deep hover:bg-lagoon/10'
+                          : 'border border-lagoon-deep/30 text-lagoon-deep hover:bg-lagoon/10'
                       }`}
                     >
-                      {plan.cta}
-                    </a>
-                  ) : (
-                    <SignInButton mode="modal">
-                      <span
-                        className={`flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md px-6 text-sm font-medium transition-all ${
-                          plan.popular
-                            ? 'bg-lagoon-deep text-white shadow-md shadow-lagoon-deep/20 hover:bg-lagoon-deep/90'
-                            : plan.name === 'School'
-                              ? 'border border-lagoon-deep/30 text-lagoon-deep hover:bg-lagoon/10'
-                              : 'border border-lagoon-deep/30 text-lagoon-deep hover:bg-lagoon/10'
-                        }`}
-                      >
-                        {plan.cta}
-                      </span>
-                    </SignInButton>
-                  )}
+                      {plan.slug === 'free' ? 'Get Started' : `Start ${plan.name} Trial`}
+                    </span>
+                  </SignInButton>
                 </div>
               </CardContent>
             </Card>
@@ -160,7 +152,7 @@ function Pricing() {
               },
               {
                 q: 'What happens to my lesson plans if I downgrade?',
-                a: 'Your existing lesson plans are always saved. You just wont be able to generate new ones beyond your plan limits.',
+                a: 'Your existing lesson plans are always saved. You just won\'t be able to generate new ones beyond your plan limits.',
               },
               {
                 q: 'Is there a free trial for Pro?',

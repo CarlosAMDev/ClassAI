@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PricingTable } from '@clerk/tanstack-react-start'
-import { useAuth } from '@clerk/tanstack-react-start'
+import { UserProfile, useAuth } from '@clerk/tanstack-react-start'
 import { Badge } from '#/components/ui/badge'
 import {
   Card,
@@ -10,7 +9,7 @@ import {
   CardTitle,
 } from '#/components/ui/card'
 
-export const Route = createFileRoute('/dashboard/billing')({
+export const Route = createFileRoute('/_authenticated/dashboard/billing')({
   component: Billing,
 })
 
@@ -20,6 +19,9 @@ function Billing() {
   if (!isLoaded) return null
 
   const isPro = has?.({ plan: 'pro' })
+  const isSchool = has?.({ plan: 'school' })
+
+  const currentPlan = isSchool ? 'School' : isPro ? 'Pro' : 'Free'
 
   return (
     <div className="space-y-6">
@@ -39,40 +41,42 @@ function Billing() {
           <div className="flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-lg bg-lagoon-deep/10">
               <span className="text-lg">
-                {isPro ? '⚡' : '📝'}
+                {isSchool ? '🏫' : isPro ? '⚡' : '📝'}
               </span>
             </div>
             <div>
-              <p className="font-medium">
-                {isPro ? 'Pro Plan' : 'Free Plan'}
-              </p>
+              <p className="font-medium">{currentPlan} Plan</p>
               <p className="text-sm text-muted-foreground">
-                {isPro
-                  ? 'Unlimited lesson plans & all features'
-                  : '5 lesson plans per month'}
+                {isSchool
+                  ? 'Full team access & all features'
+                  : isPro
+                    ? 'Unlimited lesson plans & all features'
+                    : '5 lesson plans per month'}
               </p>
             </div>
-            {isPro && (
+            {(isPro || isSchool) && (
               <Badge className="bg-lagoon-deep text-white">Active</Badge>
             )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Pricing table */}
+      {/* Subscription management */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">
-            {isPro ? 'Change Plan' : 'Upgrade Your Plan'}
+            {isPro || isSchool ? 'Manage Subscription' : 'Upgrade Your Plan'}
           </CardTitle>
           <CardDescription>
-            {isPro
-              ? 'Compare plans or manage your subscription'
+            {isPro || isSchool
+              ? 'View plan details, upgrade, downgrade, or cancel'
               : 'Choose a plan that fits your teaching needs'}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <PricingTable />
+        <CardContent className="overflow-x-auto">
+          <div className="min-w-[360px]">
+            <UserProfile routing="hash" />
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -9,112 +9,130 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as OverviewRouteImport } from './routes/overview'
-import { Route as HelpRouteImport } from './routes/help'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
-import { Route as DashboardBillingRouteImport } from './routes/dashboard/billing'
-import { Route as DashboardPlansIndexRouteImport } from './routes/dashboard/plans/index'
-import { Route as DashboardPlansNewRouteImport } from './routes/dashboard/plans/new'
-import { Route as DashboardPlansPlanIdRouteImport } from './routes/dashboard/plans/$planId'
+import { Route as PublicRouteImport } from './routes/_public'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as PublicPricingRouteImport } from './routes/_public/pricing'
+import { Route as PublicOverviewRouteImport } from './routes/_public/overview'
+import { Route as PublicHelpRouteImport } from './routes/_public/help'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
+import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard/settings'
+import { Route as AuthenticatedDashboardBillingRouteImport } from './routes/_authenticated/dashboard/billing'
+import { Route as AuthenticatedDashboardPlansIndexRouteImport } from './routes/_authenticated/dashboard/plans/index'
+import { Route as AuthenticatedDashboardPlansNewRouteImport } from './routes/_authenticated/dashboard/plans/new'
+import { Route as AuthenticatedDashboardPlansPlanIdRouteImport } from './routes/_authenticated/dashboard/plans/$planId'
 
-const PricingRoute = PricingRouteImport.update({
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublicIndexRoute = PublicIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPricingRoute = PublicPricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => PublicRoute,
 } as any)
-const OverviewRoute = OverviewRouteImport.update({
+const PublicOverviewRoute = PublicOverviewRouteImport.update({
   id: '/overview',
   path: '/overview',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => PublicRoute,
 } as any)
-const HelpRoute = HelpRouteImport.update({
+const PublicHelpRoute = PublicHelpRouteImport.update({
   id: '/help',
   path: '/help',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => PublicRoute,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardBillingRoute = DashboardBillingRouteImport.update({
-  id: '/billing',
-  path: '/billing',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardPlansIndexRoute = DashboardPlansIndexRouteImport.update({
-  id: '/plans/',
-  path: '/plans/',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardPlansNewRoute = DashboardPlansNewRouteImport.update({
-  id: '/plans/new',
-  path: '/plans/new',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardPlansPlanIdRoute = DashboardPlansPlanIdRouteImport.update({
-  id: '/plans/$planId',
-  path: '/plans/$planId',
-  getParentRoute: () => DashboardRoute,
-} as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardSettingsRoute =
+  AuthenticatedDashboardSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardBillingRoute =
+  AuthenticatedDashboardBillingRouteImport.update({
+    id: '/billing',
+    path: '/billing',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardPlansIndexRoute =
+  AuthenticatedDashboardPlansIndexRouteImport.update({
+    id: '/plans/',
+    path: '/plans/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardPlansNewRoute =
+  AuthenticatedDashboardPlansNewRouteImport.update({
+    id: '/plans/new',
+    path: '/plans/new',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardPlansPlanIdRoute =
+  AuthenticatedDashboardPlansPlanIdRouteImport.update({
+    id: '/plans/$planId',
+    path: '/plans/$planId',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
-  '/help': typeof HelpRoute
-  '/overview': typeof OverviewRoute
-  '/pricing': typeof PricingRoute
-  '/dashboard/billing': typeof DashboardBillingRoute
-  '/dashboard/settings': typeof DashboardSettingsRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/dashboard/plans/$planId': typeof DashboardPlansPlanIdRoute
-  '/dashboard/plans/new': typeof DashboardPlansNewRoute
-  '/dashboard/plans/': typeof DashboardPlansIndexRoute
+  '/': typeof PublicIndexRoute
+  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/help': typeof PublicHelpRoute
+  '/overview': typeof PublicOverviewRoute
+  '/pricing': typeof PublicPricingRoute
+  '/dashboard/billing': typeof AuthenticatedDashboardBillingRoute
+  '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/plans/$planId': typeof AuthenticatedDashboardPlansPlanIdRoute
+  '/dashboard/plans/new': typeof AuthenticatedDashboardPlansNewRoute
+  '/dashboard/plans/': typeof AuthenticatedDashboardPlansIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/help': typeof HelpRoute
-  '/overview': typeof OverviewRoute
-  '/pricing': typeof PricingRoute
-  '/dashboard/billing': typeof DashboardBillingRoute
-  '/dashboard/settings': typeof DashboardSettingsRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/dashboard/plans/$planId': typeof DashboardPlansPlanIdRoute
-  '/dashboard/plans/new': typeof DashboardPlansNewRoute
-  '/dashboard/plans': typeof DashboardPlansIndexRoute
+  '/': typeof PublicIndexRoute
+  '/help': typeof PublicHelpRoute
+  '/overview': typeof PublicOverviewRoute
+  '/pricing': typeof PublicPricingRoute
+  '/dashboard/billing': typeof AuthenticatedDashboardBillingRoute
+  '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/plans/$planId': typeof AuthenticatedDashboardPlansPlanIdRoute
+  '/dashboard/plans/new': typeof AuthenticatedDashboardPlansNewRoute
+  '/dashboard/plans': typeof AuthenticatedDashboardPlansIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
-  '/help': typeof HelpRoute
-  '/overview': typeof OverviewRoute
-  '/pricing': typeof PricingRoute
-  '/dashboard/billing': typeof DashboardBillingRoute
-  '/dashboard/settings': typeof DashboardSettingsRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/dashboard/plans/$planId': typeof DashboardPlansPlanIdRoute
-  '/dashboard/plans/new': typeof DashboardPlansNewRoute
-  '/dashboard/plans/': typeof DashboardPlansIndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_public': typeof PublicRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/_public/help': typeof PublicHelpRoute
+  '/_public/overview': typeof PublicOverviewRoute
+  '/_public/pricing': typeof PublicPricingRoute
+  '/_public/': typeof PublicIndexRoute
+  '/_authenticated/dashboard/billing': typeof AuthenticatedDashboardBillingRoute
+  '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/_authenticated/dashboard/plans/$planId': typeof AuthenticatedDashboardPlansPlanIdRoute
+  '/_authenticated/dashboard/plans/new': typeof AuthenticatedDashboardPlansNewRoute
+  '/_authenticated/dashboard/plans/': typeof AuthenticatedDashboardPlansIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -144,137 +162,180 @@ export interface FileRouteTypes {
     | '/dashboard/plans'
   id:
     | '__root__'
-    | '/'
-    | '/dashboard'
-    | '/help'
-    | '/overview'
-    | '/pricing'
-    | '/dashboard/billing'
-    | '/dashboard/settings'
-    | '/dashboard/'
-    | '/dashboard/plans/$planId'
-    | '/dashboard/plans/new'
-    | '/dashboard/plans/'
+    | '/_authenticated'
+    | '/_public'
+    | '/_authenticated/dashboard'
+    | '/_public/help'
+    | '/_public/overview'
+    | '/_public/pricing'
+    | '/_public/'
+    | '/_authenticated/dashboard/billing'
+    | '/_authenticated/dashboard/settings'
+    | '/_authenticated/dashboard/'
+    | '/_authenticated/dashboard/plans/$planId'
+    | '/_authenticated/dashboard/plans/new'
+    | '/_authenticated/dashboard/plans/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRouteWithChildren
-  HelpRoute: typeof HelpRoute
-  OverviewRoute: typeof OverviewRoute
-  PricingRoute: typeof PricingRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  PublicRoute: typeof PublicRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/overview': {
-      id: '/overview'
-      path: '/overview'
-      fullPath: '/overview'
-      preLoaderRoute: typeof OverviewRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/help': {
-      id: '/help'
-      path: '/help'
-      fullPath: '/help'
-      preLoaderRoute: typeof HelpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_public/': {
+      id: '/_public/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/dashboard/': {
-      id: '/dashboard/'
+    '/_public/pricing': {
+      id: '/_public/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PublicPricingRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/overview': {
+      id: '/_public/overview'
+      path: '/overview'
+      fullPath: '/overview'
+      preLoaderRoute: typeof PublicOverviewRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/help': {
+      id: '/_public/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof PublicHelpRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
       path: '/'
       fullPath: '/dashboard/'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/dashboard/settings': {
-      id: '/dashboard/settings'
+    '/_authenticated/dashboard/settings': {
+      id: '/_authenticated/dashboard/settings'
       path: '/settings'
       fullPath: '/dashboard/settings'
-      preLoaderRoute: typeof DashboardSettingsRouteImport
-      parentRoute: typeof DashboardRoute
+      preLoaderRoute: typeof AuthenticatedDashboardSettingsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/dashboard/billing': {
-      id: '/dashboard/billing'
+    '/_authenticated/dashboard/billing': {
+      id: '/_authenticated/dashboard/billing'
       path: '/billing'
       fullPath: '/dashboard/billing'
-      preLoaderRoute: typeof DashboardBillingRouteImport
-      parentRoute: typeof DashboardRoute
+      preLoaderRoute: typeof AuthenticatedDashboardBillingRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/dashboard/plans/': {
-      id: '/dashboard/plans/'
+    '/_authenticated/dashboard/plans/': {
+      id: '/_authenticated/dashboard/plans/'
       path: '/plans'
       fullPath: '/dashboard/plans/'
-      preLoaderRoute: typeof DashboardPlansIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      preLoaderRoute: typeof AuthenticatedDashboardPlansIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/dashboard/plans/new': {
-      id: '/dashboard/plans/new'
+    '/_authenticated/dashboard/plans/new': {
+      id: '/_authenticated/dashboard/plans/new'
       path: '/plans/new'
       fullPath: '/dashboard/plans/new'
-      preLoaderRoute: typeof DashboardPlansNewRouteImport
-      parentRoute: typeof DashboardRoute
+      preLoaderRoute: typeof AuthenticatedDashboardPlansNewRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/dashboard/plans/$planId': {
-      id: '/dashboard/plans/$planId'
+    '/_authenticated/dashboard/plans/$planId': {
+      id: '/_authenticated/dashboard/plans/$planId'
       path: '/plans/$planId'
       fullPath: '/dashboard/plans/$planId'
-      preLoaderRoute: typeof DashboardPlansPlanIdRouteImport
-      parentRoute: typeof DashboardRoute
+      preLoaderRoute: typeof AuthenticatedDashboardPlansPlanIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
   }
 }
 
-interface DashboardRouteChildren {
-  DashboardBillingRoute: typeof DashboardBillingRoute
-  DashboardSettingsRoute: typeof DashboardSettingsRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardPlansPlanIdRoute: typeof DashboardPlansPlanIdRoute
-  DashboardPlansNewRoute: typeof DashboardPlansNewRoute
-  DashboardPlansIndexRoute: typeof DashboardPlansIndexRoute
+interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardBillingRoute: typeof AuthenticatedDashboardBillingRoute
+  AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+  AuthenticatedDashboardPlansPlanIdRoute: typeof AuthenticatedDashboardPlansPlanIdRoute
+  AuthenticatedDashboardPlansNewRoute: typeof AuthenticatedDashboardPlansNewRoute
+  AuthenticatedDashboardPlansIndexRoute: typeof AuthenticatedDashboardPlansIndexRoute
 }
 
-const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardBillingRoute: DashboardBillingRoute,
-  DashboardSettingsRoute: DashboardSettingsRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
-  DashboardPlansPlanIdRoute: DashboardPlansPlanIdRoute,
-  DashboardPlansNewRoute: DashboardPlansNewRoute,
-  DashboardPlansIndexRoute: DashboardPlansIndexRoute,
+const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
+  {
+    AuthenticatedDashboardBillingRoute: AuthenticatedDashboardBillingRoute,
+    AuthenticatedDashboardSettingsRoute: AuthenticatedDashboardSettingsRoute,
+    AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+    AuthenticatedDashboardPlansPlanIdRoute:
+      AuthenticatedDashboardPlansPlanIdRoute,
+    AuthenticatedDashboardPlansNewRoute: AuthenticatedDashboardPlansNewRoute,
+    AuthenticatedDashboardPlansIndexRoute:
+      AuthenticatedDashboardPlansIndexRoute,
+  }
+
+const AuthenticatedDashboardRouteWithChildren =
+  AuthenticatedDashboardRoute._addFileChildren(
+    AuthenticatedDashboardRouteChildren,
+  )
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
 }
 
-const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
-  DashboardRouteChildren,
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
 )
 
+interface PublicRouteChildren {
+  PublicHelpRoute: typeof PublicHelpRoute
+  PublicOverviewRoute: typeof PublicOverviewRoute
+  PublicPricingRoute: typeof PublicPricingRoute
+  PublicIndexRoute: typeof PublicIndexRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicHelpRoute: PublicHelpRoute,
+  PublicOverviewRoute: PublicOverviewRoute,
+  PublicPricingRoute: PublicPricingRoute,
+  PublicIndexRoute: PublicIndexRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRouteWithChildren,
-  HelpRoute: HelpRoute,
-  OverviewRoute: OverviewRoute,
-  PricingRoute: PricingRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  PublicRoute: PublicRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

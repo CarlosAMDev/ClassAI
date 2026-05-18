@@ -15,13 +15,16 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link to="/" className="flex items-center gap-2 text-lg font-bold">
+        <Link
+          to={isSignedIn ? '/dashboard' : '/'}
+          className="flex items-center gap-2 text-lg font-bold"
+        >
           <BookOpen className="size-5 text-lagoon-deep" />
           <span>ClassAI</span>
         </Link>
 
         <nav className="flex items-center gap-2">
-          {navLinks.map((link) => (
+          {!isSignedIn && navLinks.map((link) => (
             <Link
               key={link.href}
               to={link.href}
