@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+enum PlanStatus {
+  draft
+  completed
+  archived
+}
+
+enum ClassType {
+  listening
+  reading
+  writing
+  speaking
+  integrated
+}
+
+model LessonPlan {
+  id               String      @id @default(cuid())
+  clerkUserId      String
+  title            String
+  level            String
+  classType        ClassType
+  duration         String
+  studentCount     String
+  topic            String
+  objectives       String?
+  notes            String?
+  content          String
+  status           PlanStatus  @default(completed)
+  promptTokens     Int         @default(0)
+  completionTokens Int         @default(0)
+  totalTokens      Int         @default(0)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@index([clerkUserId])
+  @@index([clerkUserId, createdAt(sort: Desc)])
+  @@index([clerkUserId, status])
+  @@index([createdAt(sort: Desc)])
+  @@map("lesson_plans")
+}
+
+model Draft {
+  id            String    @id @default(cuid())
+  clerkUserId   String
+  title         String?
+  level         String?
+  classType     String?
+  duration      String?
+  studentCount  String?
+  topic         String?
+  objectives    String?
+  notes         String?
+  content       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([clerkUserId])
+  @@index([clerkUserId])
+  @@map("drafts")
+}
