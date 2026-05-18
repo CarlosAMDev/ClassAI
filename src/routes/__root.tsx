@@ -3,6 +3,7 @@ import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import Header from '../components/Header'
+import { ThemeProvider } from '../components/theme-provider'
 
 import appCss from '../styles.css?url'
 
@@ -38,10 +39,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <ClerkProvider>
-          <Header />
-          {children}
-        </ClerkProvider>
+        <ThemeProvider defaultTheme="light" storageKey="classai-theme">
+          <ClerkProvider>
+            <Header />
+            {children}
+          </ClerkProvider>
+        </ThemeProvider>
         <TanStackRouterDevtools />
         <Scripts />
       </body>

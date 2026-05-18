@@ -19,6 +19,8 @@ import {
 } from 'lucide-react'
 
 import { Button } from '#/components/ui/button'
+import { Input } from '#/components/ui/input'
+import { Textarea } from '#/components/ui/textarea'
 import {
   Card,
   CardContent,
@@ -223,11 +225,11 @@ function CreatePlan() {
   if (generatedPlan) {
     return (
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight">Generated Lesson Plan</h1>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-lagoon-deep/10 px-2.5 py-1 text-xs font-medium text-lagoon-deep">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
                 <Check className="size-3" />
                 Saved to My Plans
               </span>
@@ -236,9 +238,9 @@ function CreatePlan() {
               {level} &middot; {classTypes.find((t) => t.id === classType)?.label} &middot; {duration} &middot; {studentCount} students
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {saveSuccess && (
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700">
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
                 <Check className="size-3.5" />
                 Saved
               </span>
@@ -249,7 +251,7 @@ function CreatePlan() {
                   <X className="mr-1 size-4" />
                   Cancel
                 </Button>
-                <Button className="bg-lagoon-deep text-white hover:bg-lagoon-deep/90" onClick={handleSave} disabled={isSaving}>
+                <Button onClick={handleSave} disabled={isSaving}>
                   {isSaving ? 'Saving...' : (
                     <>
                       <Check className="mr-1 size-4" />
@@ -260,7 +262,7 @@ function CreatePlan() {
               </>
             ) : (
               <>
-                <Button variant="outline" className="border-lagoon-deep/30 text-lagoon-deep hover:bg-lagoon/10" onClick={handleCopy}>
+                <Button variant="outline" onClick={handleCopy}>
                   <Copy className="mr-1 size-4" />
                   Copy
                 </Button>
@@ -272,28 +274,25 @@ function CreatePlan() {
                   <Edit3 className="mr-1 size-4" />
                   Edit
                 </Button>
-                <button
-                  type="button"
-                  className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-lagoon-deep px-4 text-sm font-medium text-white shadow-md shadow-lagoon-deep/20 transition-all hover:bg-lagoon-deep/90"
-                  onClick={() => setGeneratedPlan('')}
-                >
+                <Button onClick={() => setGeneratedPlan('')}>
                   Create Another
-                </button>
+                </Button>
               </>
             )}
           </div>
         </div>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             {isEditing ? (
-              <textarea
+              <Textarea
                 value={editedContent}
                 onChange={(e) => setEditedContent(e.target.value)}
-                className="min-h-[600px] w-full rounded-lg border bg-background p-4 font-mono text-sm leading-relaxed outline-none focus:border-lagoon-deep focus:ring-2 focus:ring-lagoon-deep/20"
+                className="min-h-[500px] sm:min-h-[600px] font-mono text-sm leading-relaxed"
+                placeholder="Edit your lesson plan here..."
               />
             ) : (
-              <div className="prose prose-sm max-w-none prose-headings:text-lagoon-deep prose-strong:text-foreground prose-a:text-lagoon-deep prose-li:marker:text-lagoon-deep">
+              <div className="prose prose-sm max-w-none prose-headings:text-primary prose-strong:text-foreground prose-a:text-primary prose-li:marker:text-primary">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {generatedPlan}
                 </ReactMarkdown>
@@ -306,27 +305,25 @@ function CreatePlan() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <div>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Create New Lesson Plan</h1>
-            <p className="mt-1 text-muted-foreground">
-              Fill in the details and let AI generate a complete lesson plan for your English class
-            </p>
-          </div>
-          {lastSaved && (
-            <span className="text-xs text-muted-foreground">
-              {isAutoSaving ? 'Saving...' : `Draft saved ${lastSaved.toLocaleTimeString()}`}
-            </span>
-          )}
+    <div className="mx-auto max-w-5xl space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Create New Lesson Plan</h1>
+          <p className="mt-1 text-muted-foreground">
+            Fill in the details and let AI generate a complete lesson plan for your English class
+          </p>
         </div>
+        {lastSaved && (
+          <span className="text-xs text-muted-foreground">
+            {isAutoSaving ? 'Saving...' : `Draft saved ${lastSaved.toLocaleTimeString()}`}
+          </span>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-6">
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="text-base">CEFR Level</CardTitle>
               <CardDescription>Select your students level</CardDescription>
             </CardHeader>
@@ -339,7 +336,7 @@ function CreatePlan() {
                     onClick={() => { setLevel(l); setSelectedExample('') }}
                     className={`rounded-lg border px-3 py-2.5 text-center text-sm font-medium transition-all ${
                       level === l
-                        ? 'border-lagoon-deep bg-lagoon-deep/10 text-lagoon-deep'
+                        ? 'border-primary bg-primary/10 text-primary'
                         : 'hover:bg-accent'
                     }`}
                   >
@@ -351,7 +348,7 @@ function CreatePlan() {
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="text-base">Class Type</CardTitle>
               <CardDescription>What skill will you focus on?</CardDescription>
             </CardHeader>
@@ -364,17 +361,17 @@ function CreatePlan() {
                     onClick={() => setClassType(type.id)}
                     className={`flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-all ${
                       classType === type.id
-                        ? 'border-lagoon-deep bg-lagoon-deep/10'
+                        ? 'border-primary bg-primary/10'
                         : 'hover:bg-accent'
                     }`}
                   >
                     <div className={`flex size-9 items-center justify-center rounded-lg ${
-                      classType === type.id ? 'bg-lagoon-deep/20' : 'bg-muted'
+                      classType === type.id ? 'bg-primary/20' : 'bg-muted'
                     }`}>
-                      <type.icon className={`size-4 ${classType === type.id ? 'text-lagoon-deep' : 'text-muted-foreground'}`} />
+                      <type.icon className={`size-4 ${classType === type.id ? 'text-primary' : 'text-muted-foreground'}`} />
                     </div>
                     <div>
-                      <p className={`text-sm font-medium ${classType === type.id ? 'text-lagoon-deep' : ''}`}>
+                      <p className={`text-sm font-medium ${classType === type.id ? 'text-primary' : ''}`}>
                         {type.label}
                       </p>
                       <p className="text-xs text-muted-foreground">{type.description}</p>
@@ -387,7 +384,7 @@ function CreatePlan() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Card>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <CardTitle className="text-base">Duration</CardTitle>
               </CardHeader>
               <CardContent>
@@ -399,7 +396,7 @@ function CreatePlan() {
                       onClick={() => setDuration(d)}
                       className={`flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
                         duration === d
-                          ? 'border-lagoon-deep bg-lagoon-deep/10 text-lagoon-deep'
+                          ? 'border-primary bg-primary/10 text-primary'
                           : 'hover:bg-accent'
                       }`}
                     >
@@ -412,7 +409,7 @@ function CreatePlan() {
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <CardTitle className="text-base">Students</CardTitle>
               </CardHeader>
               <CardContent>
@@ -424,7 +421,7 @@ function CreatePlan() {
                       onClick={() => setStudentCount(s)}
                       className={`flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
                         studentCount === s
-                          ? 'border-lagoon-deep bg-lagoon-deep/10 text-lagoon-deep'
+                          ? 'border-primary bg-primary/10 text-primary'
                           : 'hover:bg-accent'
                       }`}
                     >
@@ -440,7 +437,7 @@ function CreatePlan() {
 
         <div className="space-y-6">
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="text-base">Topic</CardTitle>
               <CardDescription>
                 {level ? `Suggested topics for ${level} level` : 'Select a level first to see suggested topics'}
@@ -458,7 +455,7 @@ function CreatePlan() {
                         onClick={() => { setSelectedExample(t); setCustomTopic('') }}
                         className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
                           selectedExample === t
-                            ? 'border-lagoon-deep bg-lagoon-deep/10 text-lagoon-deep'
+                            ? 'border-primary bg-primary/10 text-primary'
                             : 'hover:bg-accent'
                         }`}
                       >
@@ -470,46 +467,44 @@ function CreatePlan() {
               )}
 
               <div>
-                <label className="mb-2 block text-sm font-medium">Or write your own</label>
-                <input
+                <label htmlFor="topic" className="mb-2 block text-sm font-medium">Or write your own</label>
+                <Input
+                  id="topic"
                   type="text"
                   value={customTopic}
                   onChange={(e) => { setCustomTopic(e.target.value); setSelectedExample('') }}
                   placeholder="e.g., Past Perfect Continuous, Environmental Vocabulary..."
-                  className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm outline-none focus:border-lagoon-deep focus:ring-2 focus:ring-lagoon-deep/20"
                 />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="text-base">Learning Objectives</CardTitle>
               <CardDescription>Optional: What should students achieve?</CardDescription>
             </CardHeader>
             <CardContent>
-              <textarea
+              <Textarea
                 value={learningObjectives}
                 onChange={(e) => setLearningObjectives(e.target.value)}
                 placeholder="e.g., Students will be able to use the target grammar in real conversations..."
                 rows={3}
-                className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm outline-none focus:border-lagoon-deep focus:ring-2 focus:ring-lagoon-deep/20"
               />
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="text-base">Additional Notes</CardTitle>
               <CardDescription>Optional: Any special requirements or context</CardDescription>
             </CardHeader>
             <CardContent>
-              <textarea
+              <Textarea
                 value={additionalNotes}
                 onChange={(e) => setAdditionalNotes(e.target.value)}
                 placeholder="e.g., Students are teenagers, include a game, focus on pronunciation..."
                 rows={3}
-                className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm outline-none focus:border-lagoon-deep focus:ring-2 focus:ring-lagoon-deep/20"
               />
             </CardContent>
           </Card>
@@ -517,11 +512,11 @@ function CreatePlan() {
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="text-base">Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <SummaryItem label="Level" value={level || '—'} />
             <SummaryItem label="Type" value={classTypes.find((t) => t.id === classType)?.label || '—'} />
             <SummaryItem label="Duration" value={duration || '—'} />
@@ -535,15 +530,15 @@ function CreatePlan() {
           )}
 
           {error === 'plan_limit' ? (
-            <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-4">
+            <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-4 dark:bg-amber-950/30 dark:border-amber-800">
               <div className="flex items-start gap-3">
-                <Sparkles className="mt-0.5 size-5 shrink-0 text-amber-600" />
+                <Sparkles className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
                 <div>
-                  <p className="font-medium text-amber-800">Monthly plan limit reached</p>
-                  <p className="mt-1 text-sm text-amber-700">
+                  <p className="font-medium text-amber-800 dark:text-amber-300">Monthly plan limit reached</p>
+                  <p className="mt-1 text-sm text-amber-700 dark:text-amber-400">
                     You have used all 5 free plans for this month. Upgrade to Pro for unlimited lesson plans.
                   </p>
-                  <Button asChild className="mt-3 bg-lagoon-deep text-white hover:bg-lagoon-deep/90" size="sm">
+                  <Button asChild className="mt-3" size="sm">
                     <Link to="/dashboard/billing">Upgrade to Pro</Link>
                   </Button>
                 </div>
@@ -555,9 +550,8 @@ function CreatePlan() {
             </div>
           ) : null}
 
-          <button
-            type="button"
-            className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-md bg-lagoon-deep px-4 text-sm font-medium text-white shadow-md shadow-lagoon-deep/20 transition-all hover:bg-lagoon-deep/90 disabled:opacity-50 disabled:pointer-events-none"
+          <Button
+            className="w-full"
             onClick={handleGenerate}
             disabled={!canGenerate || isGenerating}
           >
@@ -572,7 +566,7 @@ function CreatePlan() {
                 Generate Lesson Plan
               </>
             )}
-          </button>
+          </Button>
         </CardContent>
       </Card>
     </div>

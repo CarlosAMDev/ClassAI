@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { BookOpen, Clock, Plus, Search, Trash2, ChevronLeft, ChevronRight, Share2 } from 'lucide-react'
+import { BookOpen, Clock, Plus, Search, Trash2, Share2 } from 'lucide-react'
 import { useState, useCallback } from 'react'
 
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
+import { Input } from '#/components/ui/input'
+import { Select } from '#/components/ui/select'
 import { getPlansByUserId, deletePlanFn, getSharedPlansFn } from '#/server/ai'
 
 export const Route = createFileRoute('/_authenticated/dashboard/plans/')({
@@ -73,7 +75,7 @@ function PlansList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
             {currentTab === 'shared' ? 'Shared with Me' : 'My Plans'}
@@ -90,8 +92,7 @@ function PlansList() {
         </Button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 rounded-lg border bg-muted/50 p-1 w-fit">
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/50 p-1 w-fit">
         <button
           type="button"
           onClick={() => handleTabChange('my-plans')}
@@ -118,23 +119,22 @@ function PlansList() {
         </button>
       </div>
 
-      {/* Filters - only show for My Plans */}
       {currentTab === 'my-plans' && (
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
+            <Input
               type="text"
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="Search plans..."
-              className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:border-lagoon-deep focus:ring-2 focus:ring-lagoon-deep/20"
+              className="pl-10"
             />
           </div>
-          <select
+          <Select
             value={levelFilter}
             onChange={(e) => handleFilter('level', e.target.value)}
-            className="rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-lagoon-deep"
+            className="sm:w-32"
           >
             <option value="">All Levels</option>
             <option>A1</option>
@@ -143,11 +143,11 @@ function PlansList() {
             <option>B2</option>
             <option>C1</option>
             <option>C2</option>
-          </select>
-          <select
+          </Select>
+          <Select
             value={typeFilter}
             onChange={(e) => handleFilter('classType', e.target.value)}
-            className="rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-lagoon-deep"
+            className="sm:w-36"
           >
             <option value="">All Types</option>
             <option>listening</option>
@@ -155,76 +155,133 @@ function PlansList() {
             <option>writing</option>
             <option>speaking</option>
             <option>integrated</option>
-          </select>
+          </Select>
         </div>
       )}
 
       {plans.length > 0 ? (
         <>
-          <div className="rounded-lg border">
-            <div className="grid grid-cols-12 gap-4 border-b bg-muted/50 px-4 py-3 text-sm font-medium text-muted-foreground">
-              <div className="col-span-5">Plan</div>
-              <div className="col-span-2">Level</div>
-              <div className="col-span-2">Type</div>
-              <div className="col-span-2">Date</div>
-              <div className="col-span-1" />
-            </div>
+          <div className="hidden lg:block rounded-lg border overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Plan</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Level</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Type</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Date</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {plans.map((plan: any) => (
+                  <tr key={plan.id} className="border-b last:border-b-0 hover:bg-accent/50 transition-colors">
+                    <td className="px-4 py-4">
+                      <Link
+                        to="/dashboard/plans/$planId"
+                        params={{ planId: plan.id }}
+                        className="flex items-center gap-3"
+                      >
+                        <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
+                          <BookOpen className="size-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate font-medium">{plan.title}</p>
+                          <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Clock className="size-3" />
+                            {plan.duration} &middot; {plan.studentCount} students
+                          </p>
+                        </div>
+                      </Link>
+                    </td>
+                    <td className="px-4 py-4">
+                      <Badge variant="outline" className="border-primary/30 text-primary">
+                        {plan.level}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-4 text-sm capitalize text-muted-foreground">
+                      {plan.classType}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-muted-foreground">
+                      {formatDate(plan.createdAt)}
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      {currentTab === 'my-plans' ? (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(plan.id)}
+                          disabled={isDeleting === plan.id}
+                          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                          aria-label="Delete plan"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      ) : (
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                          plan.sharePermission === 'edit'
+                            ? 'bg-primary/10 text-primary'
+                            : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {plan.sharePermission}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="grid gap-4 lg:hidden">
             {plans.map((plan: any) => (
               <Link
                 key={plan.id}
                 to="/dashboard/plans/$planId"
                 params={{ planId: plan.id }}
-                className="grid grid-cols-12 items-center gap-4 border-b px-4 py-4 last:border-b-0 transition-colors hover:bg-accent/50 cursor-pointer"
+                className="flex items-start justify-between gap-4 rounded-lg border p-4 transition-colors hover:bg-accent/50"
               >
-                <div className="col-span-5 flex items-center gap-3">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-lagoon-deep/10">
-                    <BookOpen className="size-4 text-lagoon-deep" />
+                <div className="flex items-start gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+                    <BookOpen className="size-4 text-primary" />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate font-medium">{plan.title}</p>
-                    <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="size-3" />
+                    <p className="font-medium">{plan.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {plan.classType} &middot; {plan.level}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
                       {plan.duration} &middot; {plan.studentCount} students
                     </p>
                   </div>
                 </div>
-                <div className="col-span-2">
-                  <Badge variant="outline" className="border-lagoon-deep/30 text-lagoon-deep">
-                    {plan.level}
-                  </Badge>
-                </div>
-                <div className="col-span-2 text-sm capitalize text-muted-foreground">
-                  {plan.classType}
-                </div>
-                <div className="col-span-2 text-sm text-muted-foreground">
-                  {formatDate(plan.createdAt)}
-                </div>
-                <div className="col-span-1 flex justify-end">
+                <div className="flex flex-col items-end gap-2 shrink-0">
                   {currentTab === 'my-plans' ? (
                     <button
                       type="button"
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(plan.id) }}
+                      onClick={(e) => { e.preventDefault(); handleDelete(plan.id) }}
                       disabled={isDeleting === plan.id}
                       className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                      aria-label="Delete plan"
                     >
                       <Trash2 className="size-4" />
                     </button>
                   ) : (
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                      plan.sharePermission === 'edit'
-                        ? 'bg-lagoon-deep/10 text-lagoon-deep'
-                        : 'bg-muted text-muted-foreground'
-                    }`}>
+                    <Badge
+                      variant={plan.sharePermission === 'edit' ? 'default' : 'secondary'}
+                      className={plan.sharePermission === 'edit' ? 'bg-primary text-primary-foreground' : ''}
+                    >
                       {plan.sharePermission}
-                    </span>
+                    </Badge>
                   )}
+                  <span className="text-xs text-muted-foreground">
+                    {formatDate(plan.createdAt)}
+                  </span>
                 </div>
               </Link>
             ))}
           </div>
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
                 Page {page} of {totalPages}
               </p>
@@ -235,8 +292,8 @@ function PlansList() {
                   onClick={() => handlePageChange(page - 1)}
                   disabled={page <= 1}
                 >
-                  <ChevronLeft className="size-4" />
-                  Previous
+                  <span className="sr-only sm:not-sr-only">Previous</span>
+                  <span aria-hidden="true">&larr;</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -244,15 +301,15 @@ function PlansList() {
                   onClick={() => handlePageChange(page + 1)}
                   disabled={!hasMore}
                 >
-                  Next
-                  <ChevronRight className="size-4" />
+                  <span className="sr-only sm:not-sr-only">Next</span>
+                  <span aria-hidden="true">&rarr;</span>
                 </Button>
               </div>
             </div>
           )}
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-lg border py-12 text-center">
           {currentTab === 'shared' ? (
             <>
               <Share2 className="mb-4 size-12 text-muted-foreground" />

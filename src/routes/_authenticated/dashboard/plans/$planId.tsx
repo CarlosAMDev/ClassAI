@@ -8,17 +8,18 @@ import {
   Copy,
   Download,
   Edit3,
-  X,
-  Share2,
-  Search,
-  User,
-  Shield,
-  Trash2,
   Eye,
   Pencil,
+  Search,
+  Share2,
+  Shield,
+  Trash2,
+  User,
+  X,
 } from 'lucide-react'
 
 import { Button } from '#/components/ui/button'
+import { Input } from '#/components/ui/input'
 import {
   Card,
   CardContent,
@@ -128,8 +129,8 @@ function PlanDetail() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
           <Button variant="ghost" size="sm" asChild>
             <Link to="/dashboard/plans">
               <ArrowLeft className="mr-1 size-4" />
@@ -137,26 +138,26 @@ function PlanDetail() {
             </Link>
           </Button>
           {saveSuccess && (
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700">
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
               <Check className="size-3.5" />
               Saved
             </span>
           )}
           {!plan.isOwner && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-lagoon/10 px-2.5 py-1 text-xs font-medium text-lagoon-deep">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
               <Share2 className="size-3" />
               Shared with you ({plan.sharePermission})
             </span>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {isEditing ? (
             <>
               <Button variant="outline" onClick={handleCancelEdit}>
                 <X className="mr-1 size-4" />
                 Cancel
               </Button>
-              <Button className="bg-lagoon-deep text-white hover:bg-lagoon-deep/90" onClick={handleSave} disabled={isSaving}>
+              <Button onClick={handleSave} disabled={isSaving}>
                 {isSaving ? 'Saving...' : (
                   <>
                     <Check className="mr-1 size-4" />
@@ -167,7 +168,7 @@ function PlanDetail() {
             </>
           ) : (
             <>
-              <Button variant="outline" className="border-lagoon-deep/30 text-lagoon-deep hover:bg-lagoon/10" onClick={handleCopy}>
+              <Button variant="outline" onClick={handleCopy}>
                 <Copy className="mr-1 size-4" />
                 Copy
               </Button>
@@ -189,20 +190,20 @@ function PlanDetail() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{plan.title}</CardTitle>
+          <CardTitle className="text-xl">{plan.title}</CardTitle>
           <CardDescription>
             {plan.level} &middot; {plan.classType} &middot; {plan.duration} &middot; {plan.studentCount} students
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           {isEditing ? (
             <textarea
               value={editedContent}
               onChange={(e) => setEditedContent(e.target.value)}
-              className="min-h-[600px] w-full rounded-lg border bg-background p-4 font-mono text-sm leading-relaxed outline-none focus:border-lagoon-deep focus:ring-2 focus:ring-lagoon-deep/20"
+              className="min-h-[400px] sm:min-h-[600px] w-full rounded-lg border bg-background p-4 font-mono text-sm leading-relaxed outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           ) : (
-            <div className="prose prose-sm max-w-none prose-headings:text-lagoon-deep prose-strong:text-foreground prose-a:text-lagoon-deep prose-li:marker:text-lagoon-deep">
+            <div className="prose prose-sm max-w-none prose-headings:text-primary prose-strong:text-foreground prose-a:text-primary prose-li:marker:text-primary">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {plan.content}
               </ReactMarkdown>
@@ -306,21 +307,21 @@ function ShareDialog({ planId }: { planId: string }) {
 
         {success ? (
           <div className="flex flex-col items-center gap-3 py-6 text-center">
-            <div className="flex size-12 items-center justify-center rounded-full bg-green-100">
-              <Check className="size-6 text-green-600" />
+            <div className="flex size-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+              <Check className="size-6 text-green-600 dark:text-green-400" />
             </div>
-            <p className="font-medium text-green-700">Plan shared successfully!</p>
+            <p className="font-medium text-green-700 dark:text-green-400">Plan shared successfully!</p>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <input
+              <Input
                 type="text"
                 value={query}
                 onChange={(e) => { setQuery(e.target.value); setSelectedUser(null) }}
                 placeholder="Search by email or name..."
-                className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:border-lagoon-deep focus:ring-2 focus:ring-lagoon-deep/20"
+                className="pl-10"
               />
             </div>
 
@@ -328,7 +329,7 @@ function ShareDialog({ planId }: { planId: string }) {
               <div className="space-y-3">
                 <div className="flex items-center gap-3 rounded-lg border p-3">
                   <UserAvatar user={selectedUser} />
-                  <div className="flex-1">
+                  <div className="flex-1 overflow-hidden">
                     <p className="text-sm font-medium">{selectedUser.firstName || selectedUser.email}</p>
                     <p className="text-xs text-muted-foreground">{selectedUser.email}</p>
                   </div>
@@ -349,7 +350,7 @@ function ShareDialog({ planId }: { planId: string }) {
                       onClick={() => setPermission('view')}
                       className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-all ${
                         permission === 'view'
-                          ? 'border-lagoon-deep bg-lagoon-deep/10 text-lagoon-deep'
+                          ? 'border-primary bg-primary/10 text-primary'
                           : 'hover:bg-accent'
                       }`}
                     >
@@ -361,7 +362,7 @@ function ShareDialog({ planId }: { planId: string }) {
                       onClick={() => setPermission('edit')}
                       className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-all ${
                         permission === 'edit'
-                          ? 'border-lagoon-deep bg-lagoon-deep/10 text-lagoon-deep'
+                          ? 'border-primary bg-primary/10 text-primary'
                           : 'hover:bg-accent'
                       }`}
                     >
@@ -371,11 +372,7 @@ function ShareDialog({ planId }: { planId: string }) {
                   </div>
                 </div>
 
-                <Button
-                  className="w-full bg-lagoon-deep text-white hover:bg-lagoon-deep/90"
-                  onClick={handleShare}
-                  disabled={sharing}
-                >
+                <Button className="w-full" onClick={handleShare} disabled={sharing}>
                   {sharing ? 'Sharing...' : (
                     <>
                       <Share2 className="mr-1 size-4" />
@@ -437,12 +434,12 @@ function UserAvatar({ user }: { user: any }) {
       <img
         src={user.imageUrl}
         alt=""
-        className="size-8 shrink-0 rounded-full"
+        className="size-9 shrink-0 rounded-full"
       />
     )
   }
   return (
-    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-lagoon-deep/10 text-xs font-medium text-lagoon-deep">
+    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
       {(user.firstName?.[0] || user.email?.[0] || 'U').toUpperCase()}
     </div>
   )
@@ -485,7 +482,7 @@ function SharedWithList({ planId }: { planId: string }) {
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Shield className="size-4 text-lagoon-deep" />
+          <Shield className="size-4 text-primary" />
           <CardTitle className="text-base">Shared With</CardTitle>
         </div>
         <CardDescription>
@@ -496,11 +493,11 @@ function SharedWithList({ planId }: { planId: string }) {
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading...</p>
         ) : shares.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {shares.map((share) => (
               <div
                 key={share.id}
-                className="flex items-center justify-between rounded-lg border p-3"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
               >
                 <div className="flex items-center gap-3">
                   <UserAvatar user={share.recipient} />
@@ -516,7 +513,7 @@ function SharedWithList({ planId }: { planId: string }) {
                 <div className="flex items-center gap-2">
                   <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
                     share.permission === 'edit'
-                      ? 'bg-lagoon-deep/10 text-lagoon-deep'
+                      ? 'bg-primary/10 text-primary'
                       : 'bg-muted text-muted-foreground'
                   }`}>
                     {share.permission === 'edit' ? (

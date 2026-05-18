@@ -5,6 +5,7 @@ import { auth } from '@clerk/tanstack-react-start/server'
 import { Check } from 'lucide-react'
 
 import { Badge } from '#/components/ui/badge'
+import { Button } from '#/components/ui/button'
 import {
   Card,
   CardContent,
@@ -81,29 +82,34 @@ const plans = [
 
 function Pricing() {
   return (
-    <div className="min-h-screen px-6 py-16">
+    <div className="min-h-screen px-4 py-12 sm:px-6 sm:py-16">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-16 text-center">
+        <div className="mb-12 text-center sm:mb-16">
           <Badge variant="secondary" className="mb-4">
             Pricing
           </Badge>
-          <h1 className="display-title text-4xl font-bold tracking-tight md:text-5xl">
+          <h1 className="display-title text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
             Simple, Transparent
             <br />
-            <span className="text-lagoon-deep">Pricing</span>
+            <span className="text-primary">Pricing</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
+          <p className="mx-auto mt-6 max-w-xl text-base sm:text-lg text-muted-foreground">
             Start free and upgrade when you need more. No hidden fees, cancel
             anytime.
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {plans.map((plan) => (
             <Card
               key={plan.slug}
-              className={`flex flex-col feature-card ${plan.popular ? 'border-lagoon-deep ring-2 ring-lagoon-deep/20' : ''}`}
+              className={`flex flex-col feature-card ${plan.popular ? 'border-primary ring-2 ring-primary/20' : ''}`}
             >
+              {plan.popular && (
+                <div className="rounded-t-xl bg-primary px-4 py-1.5 text-center text-xs font-semibold uppercase tracking-wider text-primary-foreground">
+                  Most Popular
+                </div>
+              )}
               <CardHeader>
                 <CardTitle className="text-xl">{plan.name}</CardTitle>
                 <CardDescription>{plan.description}</CardDescription>
@@ -116,22 +122,19 @@ function Pricing() {
                 <ul className="space-y-3">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 size-4 shrink-0 text-lagoon-deep" />
+                      <Check className="mt-0.5 size-4 shrink-0 text-primary" />
                       <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
-                <div className="mt-8">
+                <div className="mt-6 sm:mt-8">
                   <SignInButton mode="modal">
-                    <span
-                      className={`flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md px-6 text-sm font-medium transition-all ${
-                        plan.popular
-                          ? 'bg-lagoon-deep text-white shadow-md shadow-lagoon-deep/20 hover:bg-lagoon-deep/90'
-                          : 'border border-lagoon-deep/30 text-lagoon-deep hover:bg-lagoon/10'
-                      }`}
+                    <Button
+                      className="w-full"
+                      variant={plan.popular ? 'default' : 'outline'}
                     >
                       {plan.slug === 'free' ? 'Get Started' : `Start ${plan.name} Trial`}
-                    </span>
+                    </Button>
                   </SignInButton>
                 </div>
               </CardContent>
@@ -139,12 +142,11 @@ function Pricing() {
           ))}
         </div>
 
-        {/* FAQ */}
-        <div className="mt-20">
+        <div className="mt-16 sm:mt-20">
           <h2 className="mb-8 text-center text-2xl font-bold">
             Frequently Asked Questions
           </h2>
-          <div className="mx-auto max-w-3xl space-y-6">
+          <div className="mx-auto max-w-3xl space-y-4">
             {[
               {
                 q: 'Can I cancel my subscription anytime?',
@@ -152,7 +154,7 @@ function Pricing() {
               },
               {
                 q: 'What happens to my lesson plans if I downgrade?',
-                a: 'Your existing lesson plans are always saved. You just won\'t be able to generate new ones beyond your plan limits.',
+                a: "Your existing lesson plans are always saved. You just won't be able to generate new ones beyond your plan limits.",
               },
               {
                 q: 'Is there a free trial for Pro?',
@@ -162,11 +164,13 @@ function Pricing() {
                 q: 'Do you offer discounts for schools?',
                 a: 'Yes, we offer volume discounts for schools with more than 20 teachers. Contact us for a custom quote.',
               },
-            ].map((faq) => (
-              <div key={faq.q} className="rounded-lg border p-6">
-                <h3 className="font-semibold">{faq.q}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{faq.a}</p>
-              </div>
+            ].map((faq, i) => (
+              <Card key={i}>
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="font-semibold">{faq.q}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{faq.a}</p>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>

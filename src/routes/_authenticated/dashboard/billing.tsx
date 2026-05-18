@@ -24,7 +24,7 @@ function Billing() {
   const currentPlan = isSchool ? 'School' : isPro ? 'Pro' : 'Free'
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 max-w-5xl">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Billing & Plans</h1>
         <p className="mt-1 text-muted-foreground">
@@ -32,17 +32,14 @@ function Billing() {
         </p>
       </div>
 
-      {/* Current plan */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Current Plan</CardTitle>
+      <Card className="max-w-md">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Current Plan</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-lagoon-deep/10">
-              <span className="text-lg">
-                {isSchool ? '🏫' : isPro ? '⚡' : '📝'}
-              </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
+              <span className="text-lg">{isSchool ? '🏫' : isPro ? '⚡' : '📝'}</span>
             </div>
             <div>
               <p className="font-medium">{currentPlan} Plan</p>
@@ -55,30 +52,22 @@ function Billing() {
               </p>
             </div>
             {(isPro || isSchool) && (
-              <Badge className="bg-lagoon-deep text-white">Active</Badge>
+              <Badge className="bg-primary text-primary-foreground">Active</Badge>
             )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Subscription management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">
-            {isPro || isSchool ? 'Manage Subscription' : 'Upgrade Your Plan'}
-          </CardTitle>
-          <CardDescription>
-            {isPro || isSchool
-              ? 'View plan details, upgrade, downgrade, or cancel'
-              : 'Choose a plan that fits your teaching needs'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          <div className="min-w-[360px]">
+      <div>
+        <h2 className="text-lg font-semibold mb-3">
+          {isPro || isSchool ? 'Manage Subscription' : 'Upgrade Your Plan'}
+        </h2>
+        <Card>
+          <CardContent className="p-0">
             <UserProfile routing="hash" />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
