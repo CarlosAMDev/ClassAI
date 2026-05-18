@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { auth } from '@clerk/tanstack-react-start/server'
+import { auth, clerkClient } from '@clerk/tanstack-react-start/server'
 import { prisma } from '#/lib/prisma'
 import { generateLessonPlanContent, type GenerationInput } from '#/lib/openrouter'
 import { generateDocx } from '#/server/docx'
@@ -143,12 +143,24 @@ export const getPlanById = createServerFn({ method: 'GET' }).handler(
 
     const { planId } = ctx.data as unknown as { planId: string }
 
-    const plan = await prisma.lessonPlan.findFirst({
+    let plan = await prisma.lessonPlan.findFirst({
       where: { id: planId, clerkUserId: userId },
     })
 
+    let sharePermission: string | null = null
+
     if (!plan) {
-      return { success: false, error: 'Plan not found' }
+      const share = await prisma.planShare.findFirst({
+        where: { planId, recipientId: userId },
+        include: { plan: true },
+      })
+
+      if (!share) {
+        return { success: false, error: 'Plan not found' }
+      }
+
+      plan = share.plan
+      sharePermission = share.permission
     }
 
     return {
@@ -157,6 +169,8 @@ export const getPlanById = createServerFn({ method: 'GET' }).handler(
         ...plan,
         createdAt: plan.createdAt.toISOString(),
         updatedAt: plan.updatedAt.toISOString(),
+        isOwner: plan.clerkUserId === userId,
+        sharePermission,
       },
     }
   }
@@ -188,8 +202,22 @@ export const updatePlanFn = createServerFn({ method: 'POST' }).handler(
       return { success: false, error: 'You must be signed in' }
     }
 
-    const updated = await prisma.lessonPlan.updateMany({
+    const owned = await prisma.lessonPlan.count({
       where: { id: planId, clerkUserId: userId },
+    })
+
+    if (owned === 0) {
+      const share = await prisma.planShare.findFirst({
+        where: { planId, recipientId: userId },
+      })
+
+      if (!share || share.permission !== 'edit') {
+        return { success: false, error: 'You do not have permission to edit this plan' }
+      }
+    }
+
+    const updated = await prisma.lessonPlan.updateMany({
+      where: { id: planId },
       data: {
         content,
         ...(title ? { title } : {}),
@@ -332,5 +360,249 @@ export const getDashboardStats = createServerFn({ method: 'GET' }).handler(
         createdAt: p.createdAt.toISOString(),
       })),
     }
+  }
+)
+
+export const searchUsersFn = createServerFn({ method: 'POST' }).handler(
+  async (ctx) => {
+    const { userId } = await auth()
+
+    if (!userId) {
+      return { users: [], error: 'Not authenticated' }
+    }
+
+    const { query } = ctx.data as unknown as { query: string }
+
+    if (!query || query.length < 2) {
+      return { users: [] }
+    }
+
+    try {
+      const response = await (await clerkClient()).users.getUserList({
+        query,
+        limit: 10,
+      })
+
+      const users = response.data
+        .filter((u) => u.id !== userId)
+        .map((u) => ({
+          id: u.id,
+          email: u.emailAddresses[0]?.emailAddress || '',
+          firstName: u.firstName,
+          lastName: u.lastName,
+          imageUrl: u.imageUrl,
+        }))
+
+      return { users }
+    } catch {
+      return { users: [], error: 'Failed to search users' }
+    }
+  }
+)
+
+export const sharePlanFn = createServerFn({ method: 'POST' }).handler(
+  async (ctx) => {
+    const { userId } = await auth()
+
+    if (!userId) {
+      return { success: false, error: 'Not authenticated' }
+    }
+
+    const { planId, recipientId, permission } = ctx.data as unknown as {
+      planId: string
+      recipientId: string
+      permission: 'view' | 'edit'
+    }
+
+    if (!planId || !recipientId) {
+      return { success: false, error: 'Plan and recipient are required' }
+    }
+
+    if (recipientId === userId) {
+      return { success: false, error: 'You cannot share a plan with yourself' }
+    }
+
+    const plan = await prisma.lessonPlan.findFirst({
+      where: { id: planId, clerkUserId: userId },
+    })
+
+    if (!plan) {
+      return { success: false, error: 'Plan not found or you do not own it' }
+    }
+
+    try {
+      await prisma.planShare.upsert({
+        where: {
+          planId_recipientId: { planId, recipientId },
+        },
+        create: {
+          planId,
+          ownerUserId: userId,
+          recipientId,
+          permission: permission || 'view',
+        },
+        update: {
+          permission: permission || 'view',
+        },
+      })
+
+      return { success: true }
+    } catch {
+      return { success: false, error: 'Failed to share plan' }
+    }
+  }
+)
+
+export const getSharedPlansFn = createServerFn({ method: 'GET' }).handler(
+  async (ctx) => {
+    const { userId } = await auth()
+
+    if (!userId) {
+      return { plans: [], total: 0, hasMore: false }
+    }
+
+    const params = ctx.data as unknown as { page?: number; limit?: number } | undefined
+    const page = params?.page ?? 1
+    const limit = params?.limit ?? 10
+
+    const [shares, total] = await Promise.all([
+      prisma.planShare.findMany({
+        where: { recipientId: userId },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          plan: {
+            select: {
+              id: true,
+              title: true,
+              level: true,
+              classType: true,
+              duration: true,
+              studentCount: true,
+              topic: true,
+              status: true,
+              createdAt: true,
+              updatedAt: true,
+              clerkUserId: true,
+            },
+          },
+        },
+      }),
+      prisma.planShare.count({ where: { recipientId: userId } }),
+    ])
+
+    return {
+      plans: shares.map((s) => ({
+        ...s.plan,
+        createdAt: s.plan.createdAt.toISOString(),
+        updatedAt: s.plan.updatedAt.toISOString(),
+        sharePermission: s.permission,
+        sharedBy: s.ownerUserId,
+      })),
+      total,
+      hasMore: (page * limit) < total,
+    }
+  }
+)
+
+export const getPlanSharesFn = createServerFn({ method: 'GET' }).handler(
+  async (ctx) => {
+    const { userId } = await auth()
+
+    if (!userId) {
+      return { shares: [] }
+    }
+
+    const { planId } = ctx.data as unknown as { planId: string }
+
+    const plan = await prisma.lessonPlan.findFirst({
+      where: { id: planId, clerkUserId: userId },
+    })
+
+    if (!plan) {
+      return { shares: [], error: 'Plan not found or you do not own it' }
+    }
+
+    const shares = await prisma.planShare.findMany({
+      where: { planId },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    const recipientIds = shares.map((s) => s.recipientId)
+
+    if (recipientIds.length === 0) {
+      return { shares: [] }
+    }
+
+    try {
+      const usersResponse = await (await clerkClient()).users.getUserList({
+        userId: recipientIds,
+      })
+
+      const userMap = new Map(
+        usersResponse.data.map((u) => [
+          u.id,
+          {
+            email: u.emailAddresses[0]?.emailAddress || '',
+            firstName: u.firstName,
+            lastName: u.lastName,
+            imageUrl: u.imageUrl,
+          },
+        ])
+      )
+
+      const enrichedShares = shares.map((s) => ({
+        ...s,
+        createdAt: s.createdAt.toISOString(),
+        recipient: userMap.get(s.recipientId) || {
+          email: 'Unknown',
+          firstName: null,
+          lastName: null,
+          imageUrl: '',
+        },
+      }))
+
+      return { shares: enrichedShares }
+    } catch {
+      return {
+        shares: shares.map((s) => ({
+          ...s,
+          createdAt: s.createdAt.toISOString(),
+          recipient: {
+            email: 'Unknown',
+            firstName: null,
+            lastName: null,
+            imageUrl: '',
+          },
+        })),
+      }
+    }
+  }
+)
+
+export const revokeShareFn = createServerFn({ method: 'POST' }).handler(
+  async (ctx) => {
+    const { userId } = await auth()
+
+    if (!userId) {
+      return { success: false, error: 'Not authenticated' }
+    }
+
+    const { shareId } = ctx.data as unknown as { shareId: string }
+
+    const share = await prisma.planShare.findFirst({
+      where: { id: shareId, ownerUserId: userId },
+    })
+
+    if (!share) {
+      return { success: false, error: 'Share not found or you do not own it' }
+    }
+
+    await prisma.planShare.delete({
+      where: { id: shareId },
+    })
+
+    return { success: true }
   }
 )

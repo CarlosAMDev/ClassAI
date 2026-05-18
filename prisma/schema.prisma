@@ -22,6 +22,11 @@ enum ClassType {
   integrated
 }
 
+enum SharePermission {
+  view
+  edit
+}
+
 model LessonPlan {
   id               String      @id @default(cuid())
   clerkUserId      String
@@ -40,6 +45,8 @@ model LessonPlan {
   totalTokens      Int         @default(0)
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
+
+  sharedWith       PlanShare[]
 
   @@index([clerkUserId])
   @@index([clerkUserId, createdAt(sort: Desc)])
@@ -66,4 +73,19 @@ model Draft {
   @@unique([clerkUserId])
   @@index([clerkUserId])
   @@map("drafts")
+}
+
+model PlanShare {
+  id            String          @id @default(cuid())
+  planId        String
+  plan          LessonPlan      @relation(fields: [planId], references: [id], onDelete: Cascade)
+  ownerUserId   String
+  recipientId   String
+  permission    SharePermission @default(view)
+  createdAt     DateTime        @default(now())
+
+  @@unique([planId, recipientId])
+  @@index([recipientId])
+  @@index([ownerUserId])
+  @@map("plan_shares")
 }
