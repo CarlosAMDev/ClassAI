@@ -61,7 +61,7 @@ All database and AI operations run server-side via TanStack Start's `createServe
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 22.13 or later (required by pnpm 11, pinned in `packageManager`)
 - pnpm (`corepack enable && corepack prepare pnpm@latest --activate`)
 - A [Supabase](https://supabase.com) project (free tier works), a [Clerk](https://clerk.com) account and an [OpenRouter](https://openrouter.ai) API key
 
