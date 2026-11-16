@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VITE_CLERK_PUBLISHABLE_KEY: pk_test_ci_placeholder
+      CLERK_SECRET_KEY: sk_test_ci_placeholder
+      OPENROUTER_API_KEY: ci_placeholder
+      DATABASE_URL: postgresql://user:pass@localhost:5432/db
+      DATABASE_URL_UNPOOLED: postgresql://user:pass@localhost:5432/db
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+      - run: pnpm check
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
